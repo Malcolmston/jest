@@ -52,7 +52,51 @@ func TestExample(t *testing.T) {
 | `ToMatch(pattern)` | regular-expression match |
 | `ToBeCloseTo(v, eps...)` | float comparison within an epsilon (default `1e-9`) |
 | `ToThrow(msg...)` / `ToPanic(msg...)` | assert a `func()` panics, optionally matching a message |
+| `ToMatchObject(subset)` | recursive subset match against a map or struct |
+| `ToStrictEqual(v)` | deep equality that is also strict about dynamic types |
+| `ToHaveProperty(path, v...)` | dotted / indexed property lookup (`"a.b[0].c"`) |
+| `ToBeInstanceOf(type)` | dynamic-type or interface-implementation check |
+| `ToBeDefined()` / `ToBeUndefined()` | non-nil / nil checks |
+| `ToBeNaN()` | floating-point `NaN` check |
+| `ToMatchSnapshot(name...)` | compare against an on-disk snapshot |
 | `.Not()` | inverts the matcher that follows |
+
+### Asymmetric matchers
+
+Asymmetric matchers match a range of values and can be nested anywhere on the
+expected side of `ToEqual`, `ToMatchObject`, `ToHaveProperty` and the
+call-argument matchers:
+
+```go
+jest.Expect[any](t, resp).ToEqual(map[string]any{
+	"id":    jest.Any(0),                    // any int
+	"name":  jest.StringContaining("bo"),    // substring
+	"email": jest.StringMatching(`@`),       // regexp
+	"roles": jest.ArrayContaining("admin"),  // slice contains
+	"meta":  jest.ObjectContaining(map[string]any{"ok": true}),
+	"extra": jest.Anything(),                // any non-nil
+})
+```
+
+### Snapshots
+
+```go
+jest.Expect(t, render()).ToMatchSnapshot()
+```
+
+Snapshots are written under `__snapshots__/` on first run and compared on
+subsequent runs. Refresh them with `JEST_UPDATE_SNAPSHOTS=1 go test ./...` (or
+`jest.SetUpdateSnapshots(true)`).
+
+### Fake timers
+
+```go
+c := jest.NewClock()
+c.SetTimeout(time.Second, func() { /* ... */ })
+c.SetInterval(time.Second, tick)
+c.AdvanceTimersByTime(3 * time.Second) // fires due timers deterministically
+c.RunAllTimers()
+```
 
 ### Mocks and spies
 
@@ -83,8 +127,29 @@ func TestMock(t *testing.T) {
 ```
 
 Inspection API: `CallCount()`, `Called()`, `CalledWith(...)`, `LastCall()`,
-`NthCall(i)`, `Calls()`, `Reset()`. Configuration: `Return(...)`,
-`ReturnValues(...)`. Typed helpers: `Fn0`/`Fn1`/`Fn2` and `Spy0`/`Spy1`/`Spy2`.
+`NthCall(i)`, `Calls()`, `Results()`, `Reset()`. Configuration: `Return(...)`,
+`ReturnValues(...)`, `MockImplementation(...)`, `MockImplementationOnce(...)`,
+`MockReturnValueOnce(...)`, `MockResolvedValue(...)`, `MockRejectedValue(...)`.
+Typed helpers: `Fn0`/`Fn1`/`Fn2` and `Spy0`/`Spy1`/`Spy2`.
+
+Mock-oriented matchers work directly on a `*Mock` (or a spy):
+
+```go
+jest.Expect(t, m).ToHaveBeenCalledTimes(2)
+jest.Expect(t, m).ToHaveBeenCalledWith(jest.Any(0), "b")
+jest.Expect(t, m).ToHaveBeenLastCalledWith(2, "b")
+jest.Expect(t, m).ToHaveReturnedWith(42)
+```
+
+`SpyOn` replaces a function variable or struct field in place, recording calls
+while delegating to the original; `RestoreAllMocks()` reinstates every original:
+
+```go
+spy := jest.SpyOn(&client.Fetch)
+defer spy.Restore()
+client.Fetch(7)
+jest.Expect(t, spy).ToHaveBeenCalledWith(7)
+```
 
 ### Test organization
 
@@ -109,7 +174,34 @@ func TestSuite(t *testing.T) {
 `Describe`/`It`/`Test` use `t.Run` under the hood, so subtests, `-run`
 filtering and `go test -v` output all work as usual. `BeforeEach`/`AfterEach`
 hooks are scoped to their enclosing `Describe` block and compose across nested
-blocks.
+blocks. `BeforeAll`/`AfterAll` run once per block. `ItSkip`, `ItOnly` and
+`ItTodo` mark individual cases (focus applies within a `Describe` block).
+
+### Parameterized tests
+
+```go
+jest.Each(t, "square of %v", []struct{ In, Out int }{{2, 4}, {3, 9}},
+	func(t *testing.T, tc struct{ In, Out int }) {
+		jest.Expect(t, tc.In*tc.In).ToBe(tc.Out)
+	})
+```
+
+`DescribeEach` runs a whole `Describe` block once per case.
+
+### Custom matchers and assertion counts
+
+```go
+jest.Extend(map[string]jest.CustomMatcher{
+	"ToBeEven": func(actual any, _ ...any) jest.MatcherResult {
+		n, ok := actual.(int)
+		return jest.MatcherResult{Pass: ok && n%2 == 0, Message: "expected an even number"}
+	},
+})
+jest.Expect(t, 4).To("ToBeEven")
+
+jest.Assertions(t, 2) // fail unless exactly 2 assertions run
+jest.HasAssertions(t) // fail unless at least 1 runs
+```
 
 ## How failure reporting works
 

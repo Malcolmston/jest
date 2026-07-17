@@ -32,11 +32,44 @@
 //   - ToMatch(pattern)                  – regular-expression match on a string
 //   - ToBeCloseTo(expected, epsilon...) – float comparison within an epsilon
 //   - ToThrow(msg...) / ToPanic(msg...) – assert that a func value panics
+//   - ToMatchObject(subset)             – recursive subset match (maps/structs)
+//   - ToStrictEqual(expected)           – deep equality that is also type-strict
+//   - ToHaveProperty(path, value...)    – dotted/indexed property lookup
+//   - ToBeInstanceOf(type)              – dynamic-type / interface check
+//   - ToBeDefined() / ToBeUndefined()   – non-nil / nil checks
+//   - ToBeNaN()                         – floating-point NaN check
+//   - ToMatchSnapshot(name...)          – on-disk snapshot comparison
 //
 // Any matcher can be inverted with [Matcher.Not]:
 //
 //	jest.Expect(t, 5).Not().ToBe(6)
 //	jest.Expect(t, "abc").Not().ToContain("z")
+//
+// # Asymmetric matchers
+//
+// Asymmetric matchers ([Any], [Anything], [StringContaining], [StringMatching],
+// [ArrayContaining], [ObjectContaining]) match a range of values rather than one
+// fixed value, and may be placed anywhere on the expected side of [Matcher.ToEqual],
+// [Matcher.ToMatchObject], [Matcher.ToHaveProperty] and the call-argument matchers:
+//
+//	jest.Expect[any](t, resp).ToEqual(map[string]any{
+//	    "id":   jest.Any(0),
+//	    "name": jest.StringContaining("bo"),
+//	    "tags": jest.ArrayContaining("admin"),
+//	})
+//
+// # Snapshots
+//
+// [Matcher.ToMatchSnapshot] serializes the value and stores it under
+// __snapshots__ on the first run, comparing against it on subsequent runs. Set
+// the JEST_UPDATE_SNAPSHOTS environment variable (or call [SetUpdateSnapshots])
+// to refresh stored snapshots.
+//
+// # Fake timers
+//
+// [Clock] is a manually-advanced replacement for real time. Code schedules work
+// with [Clock.SetTimeout] / [Clock.SetInterval] and the test drives it with
+// [Clock.AdvanceTimersByTime], [Clock.RunAllTimers] or [Clock.RunOnlyPendingTimers].
 //
 // # Mocks and spies
 //
@@ -59,8 +92,16 @@
 //	got := fn(7) // "hi"
 //	jest.Expect(t, m.CalledWith(7)).ToBeTrue()
 //
+// Mocks can be given behavior with [Mock.MockImplementation],
+// [Mock.MockImplementationOnce], [Mock.MockReturnValueOnce],
+// [Mock.MockResolvedValue] and [Mock.MockRejectedValue], and inspected with the
+// mock-oriented matchers ([Matcher.ToHaveBeenCalledTimes],
+// [Matcher.ToHaveBeenCalledWith], [Matcher.ToHaveReturnedWith] and friends).
+//
 // Spies ([Spy0], [Spy1], [Spy2]) wrap an existing function, recording calls
-// while delegating to the real implementation.
+// while delegating to the real implementation. [SpyOn] replaces a function
+// variable or struct field in place, and [RestoreAllMocks] reinstates every
+// spied original.
 //
 // # Test organization
 //
@@ -81,4 +122,10 @@
 //	        })
 //	    })
 //	}
+//
+// [BeforeAll]/[AfterAll] run once per Describe block, [ItSkip], [ItOnly] and
+// [ItTodo] mark individual cases, and [Each]/[DescribeEach] drive table-based
+// parameterized tests. Custom matchers are registered with [Extend] and invoked
+// through [Matcher.To], and [Assertions]/[HasAssertions] guard the number of
+// assertions a test runs.
 package jest

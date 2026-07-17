@@ -34,6 +34,7 @@ func (m *Matcher[T]) Not() *Matcher[T] {
 // "to be 5, but got 3".
 func (m *Matcher[T]) check(pass bool, expectation string) {
 	m.t.Helper()
+	countAssertion(m.t)
 	if m.negated {
 		pass = !pass
 	}
@@ -60,9 +61,9 @@ func (m *Matcher[T]) ToBe(expected T) {
 // a small structural diff between the expected and actual values.
 func (m *Matcher[T]) ToEqual(expected T) {
 	m.t.Helper()
-	pass := reflect.DeepEqual(m.actual, expected)
+	pass := asymEqual(expected, m.actual)
 	expectation := fmt.Sprintf("to deeply equal %s, but got %s", format(expected), format(m.actual))
-	if !pass && !m.negated {
+	if !pass && !m.negated && !hasAsymmetric(expected) {
 		if d := diff(expected, m.actual); d != "" {
 			expectation += "\n" + d
 		}

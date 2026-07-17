@@ -2,6 +2,7 @@ package jest_test
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/malcolmston/jest"
 )
@@ -28,4 +29,34 @@ func Example() {
 	// true
 	// 1 4 9
 	// 3
+}
+
+// ExampleClock demonstrates driving virtual time with a fake clock.
+func ExampleClock() {
+	c := jest.NewClock()
+	ticks := 0
+	c.SetInterval(time.Second, func() { ticks++ })
+
+	c.AdvanceTimersByTime(3 * time.Second)
+	fmt.Println("ticks:", ticks)
+	fmt.Println("now:", c.Now().Sub(time.Unix(0, 0)))
+
+	// Output:
+	// ticks: 3
+	// now: 3s
+}
+
+// ExampleMock_mockImplementationOnce demonstrates one-shot implementations
+// falling back to a base implementation.
+func ExampleMock_mockImplementationOnce() {
+	m := jest.NewMock("fetch")
+	m.MockImplementation(func(_ ...any) []any { return []any{"live"} })
+	m.MockReturnValueOnce("cached")
+
+	fmt.Println(m.Call()[0])
+	fmt.Println(m.Call()[0])
+
+	// Output:
+	// cached
+	// live
 }
