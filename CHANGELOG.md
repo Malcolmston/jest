@@ -4,6 +4,36 @@ All notable changes to this project are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-07-18
+
+Another step toward Jest parity. Still pure Go standard library, no third-party
+dependencies.
+
+### Added
+
+- **Truthiness matchers**: `Matcher.ToBeTruthy` and `Matcher.ToBeFalsy` using
+  JavaScript-style truthiness (nil, `false`, numeric zero, `""` and NaN are
+  falsy), plus `Matcher.ToBeNull` as the Jest spelling of a nil check.
+- **Collection matchers**: `Matcher.ToContainEqual` (asymmetric-aware deep
+  element/value membership), `Matcher.ToHaveLength` (Jest spelling of
+  `ToHaveLen`) and `Matcher.ToBeOneOf`.
+- **Return-value matchers**: `Matcher.ToHaveReturnedTimes`,
+  `Matcher.ToHaveLastReturnedWith` and `Matcher.ToHaveNthReturnedWith`.
+- **Jest alias spellings**: `Matcher.ToBeCalled`, `ToBeCalledTimes`,
+  `ToBeCalledWith`, `LastCalledWith`, `NthCalledWith`, `ToReturn` and
+  `ToReturnWith`.
+- **Inline & thrown-error snapshots**: `Matcher.ToMatchInlineSnapshot` compares
+  against an inline serialized literal, and `Matcher.ToThrowMatchingSnapshot`
+  snapshots a captured panic message (mirroring `toThrowErrorMatchingSnapshot`).
+- **Asymmetric matchers**: `CloseTo` (mirrors `expect.closeTo`) and the negated
+  forms `NotArrayContaining`, `NotObjectContaining`, `NotStringContaining` and
+  `NotStringMatching` (mirroring `expect.not.*`).
+- **Mock lifecycle**: `Mock.MockClear`, `Mock.MockReset`, `Mock.MockName`, and
+  the global `ClearAllMocks` / `ResetAllMocks` backed by a registry that every
+  `NewMock` (and therefore every `Fn*`, `Spy*` and `SpyOn`) joins.
+- **Fake-timer controls**: `Clock.AdvanceTimersToNextTimer`,
+  `Clock.ClearAllTimers`, `Clock.GetTimerCount` and `Clock.SetSystemTime`.
+
 ## [0.2.0] - 2026-07-17
 
 A large step toward Jest parity. Still pure Go standard library, no third-party

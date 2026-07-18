@@ -27,9 +27,13 @@ type Mock struct {
 	once     []func(args ...any) []any // one-shot implementations consumed first, in order
 }
 
-// NewMock creates a new mock with the given descriptive name.
+// NewMock creates a new mock with the given descriptive name. The mock is
+// registered in the global registry consulted by [ClearAllMocks] and
+// [ResetAllMocks].
 func NewMock(name string) *Mock {
-	return &Mock{name: name}
+	m := &Mock{name: name}
+	registerGlobalMock(m)
+	return m
 }
 
 // Name returns the mock's descriptive name.
