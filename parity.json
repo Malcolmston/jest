@@ -1,0 +1,10 @@
+{
+  "repo": "jest",
+  "upstream": "jestjs/jest",
+  "parityBefore": "98%",
+  "parityAfter": "100%",
+  "upstreamCasesSynced": 90,
+  "gapsFound": 1,
+  "gapsClosed": 1,
+  "asOf": "2026-07-18"
+}

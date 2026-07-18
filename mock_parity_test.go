@@ -2,7 +2,7 @@ package jest
 
 import "testing"
 
-func TestMockClear(t *testing.T) {
+func TestParityMockClear(t *testing.T) {
 	m := NewMock("f")
 	m.Return(42)
 	m.Call(1)
@@ -21,7 +21,7 @@ func TestMockClear(t *testing.T) {
 	}
 }
 
-func TestMockReset(t *testing.T) {
+func TestParityMockReset(t *testing.T) {
 	m := NewMock("f")
 	m.Return(42)
 	m.Call(1)
@@ -35,7 +35,7 @@ func TestMockReset(t *testing.T) {
 	}
 }
 
-func TestMockName(t *testing.T) {
+func TestParityMockName(t *testing.T) {
 	m := NewMock("orig")
 	if m.MockName("renamed") != m {
 		t.Error("MockName should return the mock for chaining")
@@ -45,7 +45,7 @@ func TestMockName(t *testing.T) {
 	}
 }
 
-func TestClearAllMocks(t *testing.T) {
+func TestParityClearAllMocks(t *testing.T) {
 	a := NewMock("a")
 	b := NewMock("b")
 	a.Return(1)
@@ -62,7 +62,7 @@ func TestClearAllMocks(t *testing.T) {
 	}
 }
 
-func TestResetAllMocks(t *testing.T) {
+func TestParityResetAllMocks(t *testing.T) {
 	a := NewMock("a")
 	a.Return(1)
 	a.Call()

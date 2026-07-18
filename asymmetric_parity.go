@@ -34,6 +34,12 @@ func (n numberCloseToMatcher) Matches(actual any) bool {
 	if math.IsNaN(a) || math.IsNaN(n.expected) {
 		return false
 	}
+	// Jest treats matching infinities as close (Infinity ~ Infinity and
+	// -Infinity ~ -Infinity) while opposite or finite/infinite pairs never
+	// match, because their difference is not a finite number below tolerance.
+	if math.IsInf(a, 0) || math.IsInf(n.expected, 0) {
+		return a == n.expected
+	}
 	tol := 0.5 * math.Pow(10, -float64(n.precision))
 	return math.Abs(a-n.expected) < tol
 }

@@ -2,7 +2,7 @@ package jest
 
 import "testing"
 
-func TestCloseTo(t *testing.T) {
+func TestParityCloseTo(t *testing.T) {
 	cases := []struct {
 		name      string
 		expected  float64
@@ -34,7 +34,7 @@ func TestCloseTo(t *testing.T) {
 	}
 }
 
-func TestNotMatchers(t *testing.T) {
+func TestParityNotMatchers(t *testing.T) {
 	if !NotArrayContaining("z").Matches([]string{"a", "b"}) {
 		t.Error("NotArrayContaining should match a slice lacking z")
 	}

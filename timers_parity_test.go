@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestAdvanceTimersToNextTimer(t *testing.T) {
+func TestParityAdvanceTimersToNextTimer(t *testing.T) {
 	c := NewClock()
 	var order []int
 	c.SetTimeout(10*time.Millisecond, func() { order = append(order, 1) })
@@ -33,7 +33,7 @@ func TestAdvanceTimersToNextTimer(t *testing.T) {
 	}
 }
 
-func TestAdvanceTimersToNextTimerRepeating(t *testing.T) {
+func TestParityAdvanceTimersToNextTimerRepeating(t *testing.T) {
 	c := NewClock()
 	count := 0
 	c.SetInterval(5*time.Millisecond, func() { count++ })
@@ -43,7 +43,7 @@ func TestAdvanceTimersToNextTimerRepeating(t *testing.T) {
 	}
 }
 
-func TestClearAllTimers(t *testing.T) {
+func TestParityClearAllTimers(t *testing.T) {
 	c := NewClock()
 	c.SetTimeout(time.Second, func() {})
 	c.SetTimeout(time.Second, func() {})
@@ -58,7 +58,7 @@ func TestClearAllTimers(t *testing.T) {
 	}
 }
 
-func TestSetSystemTime(t *testing.T) {
+func TestParitySetSystemTime(t *testing.T) {
 	c := NewClock()
 	target := time.Date(2026, 7, 18, 12, 0, 0, 0, time.UTC)
 	c.SetSystemTime(target)

@@ -2,7 +2,7 @@ package jest
 
 import "testing"
 
-func TestToMatchInlineSnapshot(t *testing.T) {
+func TestParityToMatchInlineSnapshot(t *testing.T) {
 	expectPass(t, "string", func(r TestReporter) { Expect(r, "hi").ToMatchInlineSnapshot(`"hi"`) })
 	expectPass(t, "int", func(r TestReporter) { Expect(r, 42).ToMatchInlineSnapshot(`42`) })
 	expectPass(t, "slice multiline", func(r TestReporter) {
@@ -19,7 +19,7 @@ func TestToMatchInlineSnapshot(t *testing.T) {
 	})
 }
 
-func TestToThrowMatchingSnapshot(t *testing.T) {
+func TestParityToThrowMatchingSnapshot(t *testing.T) {
 	withSnapshotDir(t)
 	boom := func() { panic("kaboom") }
 	// First run writes and passes.
